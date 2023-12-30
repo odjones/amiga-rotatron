@@ -1,2 +1,12 @@
 # amiga-rotatron
 Simple orbital rotation demo based on Rotatron on the C64 (by Thunderdog, 1989)
+
+I once had a Commodore 64, and one of my favourite demos on that platform was _Rotatron_, which rotated eight sprites along primary, secondary and tertiary sine curves. The math was pretty simple - you had a large sine curve for the primary curve, a smaller sine curve for the secondary curve, and an even smaller sine curve for the tertiary curve. Added together, with different speed offsets to read the additive indexes of each curve, you could get a pretty funky-looking rotation.
+
+This code was written in 68000 assembler for the Commodore Amiga. It hits the hardware directly - i.e. it takes over the display hardware, and writes directly to it, rather than using operating system functions. Many games directly "hit the hardware" back in the day, because speed was the primary concern: Doing the job directly in specialised assembler was _much_ faster than calling operating system functions. However, there was no clean way to exit - it took over your machine, so don't run this on a machine where you have unsaved work sitting in the background!
+
+This code works slighly differently from the original _Rotatron_ demo: The C64 version used hardware sprites, so changing coordinates was as simple as writing new coordinates to the sprite registers on every screen refresh. I would have used sprites on the Amiga as well, but the Amiga also had a limitation of eight sprites, and I didn't want to go to the bother of writing sprite multiplexing code.
+
+So, I wrote dots on a monochrome screen, instead. The dots were actually exclusive-ORed onto the screen, so plotting the same coordinates twice _also_ cleared the screen. This is actually how the code worked: It would plot a set of coordinates, wait until the vertical blank, then write the same coordinates to clear the screen, advance to the next set, write those, wait for a blank, write those again, and so on. The code was quick enough that it could write and erase all the dots before the vertical blank completed - so there was no double buffering of the screen display!
+
+The sine curve data was precalculated with a copy of AMOS Basic (anyone remember _that?!_) - and written to a packed binary file. Trigonometry calculations for each degree were precalculated - like a _very_ simple ephemeris - so the assembler code simply read the correct offset for a given degree, without having to perform extensive mathematics on the fly. _This_ is why the code executed so quickly. :)
